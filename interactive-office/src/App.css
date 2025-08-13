@@ -83,6 +83,18 @@ body {
   align-items: center;
   position: relative;
   overflow: hidden;
+  min-height: 220px;
+}
+
+/* Ensure all cards have the same height and alignment */
+.menu-card:nth-child(1),
+.menu-card:nth-child(2),
+.menu-card:nth-child(3),
+.menu-card:nth-child(4),
+.menu-card:nth-child(5),
+.menu-card:nth-child(6) {
+  height: 220px;
+  min-height: 220px;
 }
 
 .menu-card::before {
@@ -431,6 +443,7 @@ body {
   margin-bottom: 20px;
   font-size: 1.3rem;
   font-weight: 600;
+  text-align: center;
 }
 
 .progress-bar {
@@ -454,6 +467,7 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 15px;
+  margin-bottom: 20px;
 }
 
 .progress-stat {
@@ -481,6 +495,21 @@ body {
   color: #7f8c8d;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.progress-info {
+  text-align: center;
+  padding: 15px;
+  background: #e8f4fd;
+  border-radius: 10px;
+  border-left: 4px solid #3498db;
+}
+
+.progress-info p {
+  color: #2c3e50;
+  font-weight: 500;
+  margin: 0;
+  font-size: 1rem;
 }
 
 /* Quiz Game Styles */
@@ -604,6 +633,7 @@ body {
   color: white;
 }
 
+/* Explanation Styles */
 .explanation {
   background: #e8f4fd;
   border-left: 4px solid #3498db;
@@ -615,38 +645,101 @@ body {
 
 .explanation h4 {
   color: #2c3e50;
-  margin-bottom: 10px;
-  font-size: 1.1rem;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
-.explanation p {
+.explanation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.explanation-english,
+.explanation-russian {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.explanation-english strong,
+.explanation-russian strong {
+  color: #2c3e50;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.explanation-english p,
+.explanation-russian p {
   color: #34495e;
   line-height: 1.5;
-  margin-bottom: 15px;
+  margin: 0;
 }
 
-.points-info {
-  padding: 10px;
+.russian-toggle-btn {
+  background: linear-gradient(135deg, #1abc9c, #16a085);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.russian-toggle-btn:hover {
+  background: linear-gradient(135deg, #16a085, #138d75);
+  transform: translateY(-1px);
+}
+
+.russian-text {
+  background: #f0fdfa;
+  padding: 12px;
   border-radius: 6px;
+  border-left: 3px solid #1abc9c;
+  margin-top: 10px;
+}
+
+.russian-text strong {
+  color: #16a085;
+}
+
+.russian-text p {
+  color: #0f766e;
+  margin: 5px 0 0 0;
+}
+
+/* Points Info Styles */
+.points-info {
+  padding: 15px;
+  border-radius: 8px;
   font-weight: 600;
+  text-align: center;
+  margin-top: 10px;
 }
 
 .points-earned {
   color: #27ae60;
   background: #d4edda;
-  padding: 8px 12px;
+  padding: 10px 15px;
   border-radius: 6px;
   display: inline-block;
   animation: pointsEarned 0.8s ease-out;
+  font-size: 1.1rem;
 }
 
 .points-lost {
   color: #e74c3c;
   background: #f8d7da;
-  padding: 8px 12px;
+  padding: 10px 15px;
   border-radius: 6px;
   display: inline-block;
   animation: pointsLost 0.8s ease-out;
+  font-size: 1.1rem;
 }
 
 .quiz-controls {

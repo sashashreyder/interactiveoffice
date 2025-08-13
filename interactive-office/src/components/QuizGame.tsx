@@ -8,6 +8,7 @@ interface Question {
   options: string[];
   correctAnswer: string;
   explanation: string;
+  explanationRu: string;
   points: number;
   category: string;
 }
@@ -22,16 +23,40 @@ const QuizGame: React.FC<QuizGameProps> = ({ questions, onAnswer, onBack }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
-  const [quizComplete, setQuizComplete] = useState(false);
+  const [showRussian, setShowRussian] = useState(false);
 
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
+  const handleAnswerSelect = (answer: string) => {
+    setSelectedAnswer(answer);
+    setShowExplanation(true);
+    setShowRussian(false);
+    
+    const isCorrect = answer === currentQuestion.correctAnswer;
+    onAnswer(isCorrect, currentQuestion.points, currentQuestion.type);
+  };
+
+  const handleNextQuestion = () => {
+    if (isLastQuestion) {
+      // Quiz completed
+      return;
+    }
+    
+    setCurrentQuestionIndex(prev => prev + 1);
+    setSelectedAnswer(null);
+    setShowExplanation(false);
+    setShowRussian(false);
+  };
+
+  const handleFinishQuiz = () => {
+    onBack();
+  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "vocabulary": return "📚";
       case "grammar": return "✏️";
-      case "scenario": return "🎭";
       case "critical_thinking": return "🧠";
       default: return "❓";
     }
@@ -41,54 +66,55 @@ const QuizGame: React.FC<QuizGameProps> = ({ questions, onAnswer, onBack }) => {
     switch (type) {
       case "vocabulary": return "#3498db";
       case "grammar": return "#e74c3c";
-      case "scenario": return "#f39c12";
       case "critical_thinking": return "#9b59b6";
       default: return "#95a5a6";
     }
   };
 
-  const handleAnswerSelect = (answer: string) => {
-    if (selectedAnswer) return; // Already answered
-    setSelectedAnswer(answer);
-    
-    const isCorrect = answer === currentQuestion.correctAnswer;
-    onAnswer(isCorrect, currentQuestion.points, currentQuestion.type);
-    
-    setShowExplanation(true);
-  };
-
-  const handleNextQuestion = () => {
-    if (isLastQuestion) {
-      setQuizComplete(true);
-    } else {
-      setCurrentQuestionIndex(prev => prev + 1);
-      setSelectedAnswer(null);
-      setShowExplanation(false);
+  const getTypeName = (type: string) => {
+    switch (type) {
+      case "vocabulary": return "Лексика";
+      case "grammar": return "Грамматика";
+      case "critical_thinking": return "Критическое Мышление";
+      default: return "Вопрос";
     }
   };
 
-  const handleRestart = () => {
-    setCurrentQuestionIndex(0);
-    setSelectedAnswer(null);
-    setShowExplanation(false);
-    setQuizComplete(false);
+  const getCategoryName = (category: string) => {
+    const categoryMap: { [key: string]: string } = {
+      "Office Items": "Офисные предметы",
+      "People": "Люди",
+      "Workplace Actions": "Рабочие действия",
+      "Present Simple": "Настоящее время",
+      "Articles": "Артикли",
+      "Demonstratives": "Указательные местоимения",
+      "There is/There are": "There is/There are",
+      "Modal Verbs": "Модальные глаголы",
+      "Future Tense": "Будущее время",
+      "Present Continuous": "Настоящее продолженное",
+      "Would like to": "Would like to",
+      "Countable/Uncountable": "Исчисляемые/Неисчисляемые",
+      "Possessive Pronouns": "Притяжательные местоимения",
+      "Customer Service": "Обслуживание клиентов",
+      "Communication": "Общение",
+      "Professional Behavior": "Профессиональное поведение",
+      "Teamwork": "Командная работа"
+    };
+    
+    return categoryMap[category] || category;
   };
 
-  if (quizComplete) {
+  if (currentQuestionIndex >= questions.length) {
     return (
       <div className="quiz-game">
         <div className="quiz-header">
-          <h2>🎉 Quiz Complete!</h2>
-          <p>Excellent work! You've completed all 34 questions.</p>
-          <p>You've mastered vocabulary, grammar, and critical thinking!</p>
+          <h2>🎉 Викторина завершена!</h2>
+          <p>Отличная работа! Вы ответили на все вопросы.</p>
         </div>
         
         <div className="quiz-controls">
-          <button onClick={handleRestart} className="quiz-btn">
-            Try Again
-          </button>
-          <button onClick={onBack} className="quiz-btn secondary">
-            Back to Menu
+          <button onClick={handleFinishQuiz} className="quiz-btn">
+            Вернуться в главное меню
           </button>
         </div>
       </div>
@@ -98,13 +124,15 @@ const QuizGame: React.FC<QuizGameProps> = ({ questions, onAnswer, onBack }) => {
   return (
     <div className="quiz-game">
       <div className="quiz-header">
-        <h2>🎯 Quiz Challenge</h2>
-        <p>Question {currentQuestionIndex + 1} of {questions.length}</p>
+        <h2>Вопрос {currentQuestionIndex + 1} из {questions.length}</h2>
+        <p>Выберите правильный ответ</p>
+        
         <div className="question-type-badge" style={{ backgroundColor: getTypeColor(currentQuestion.type) }}>
-          {getTypeIcon(currentQuestion.type)} {currentQuestion.type.replace('_', ' ').toUpperCase()}
+          {getTypeIcon(currentQuestion.type)} {getTypeName(currentQuestion.type)}
         </div>
+        
         <div className="question-category">
-          Category: {currentQuestion.category}
+          Категория: {getCategoryName(currentQuestion.category)}
         </div>
       </div>
 
@@ -118,47 +146,76 @@ const QuizGame: React.FC<QuizGameProps> = ({ questions, onAnswer, onBack }) => {
             <button
               key={index}
               onClick={() => handleAnswerSelect(option)}
+              disabled={showExplanation}
               className={`option-btn ${
-                selectedAnswer === option
+                showExplanation
                   ? option === currentQuestion.correctAnswer
-                    ? 'correct'
-                    : 'incorrect'
-                  : ''
+                    ? "correct"
+                    : option === selectedAnswer
+                    ? "incorrect"
+                    : ""
+                  : ""
               }`}
-              disabled={selectedAnswer !== null}
             >
               {option}
             </button>
           ))}
         </div>
+      </div>
 
-        {showExplanation && (
-          <div className="explanation">
-            <h4>Explanation:</h4>
-            <p>{currentQuestion.explanation}</p>
+      {showExplanation && (
+        <div className="explanation">
+          <h4>
+            {selectedAnswer === currentQuestion.correctAnswer ? "✅ Правильно!" : "❌ Неправильно"}
+          </h4>
+          
+          <div className="explanation-content">
+            <div className="explanation-english">
+              <strong>Объяснение:</strong>
+              <p>{currentQuestion.explanation}</p>
+            </div>
+            
+            <div className="explanation-russian">
+              <button 
+                onClick={() => setShowRussian(!showRussian)} 
+                className="russian-toggle-btn"
+              >
+                {showRussian ? "Скрыть перевод" : "Показать перевод на русский"}
+              </button>
+              
+              {showRussian && (
+                <div className="russian-text">
+                  <strong>Перевод:</strong>
+                  <p>{currentQuestion.explanationRu}</p>
+                </div>
+              )}
+            </div>
+            
             <div className="points-info">
               {selectedAnswer === currentQuestion.correctAnswer ? (
-                <span className="points-earned">✅ Correct! +{currentQuestion.points} points</span>
+                <span className="points-earned">
+                  +{currentQuestion.points} очков опыта
+                </span>
               ) : (
-                <span className="points-lost">❌ Incorrect. The correct answer was: {currentQuestion.correctAnswer}</span>
+                <span className="points-lost">
+                  0 очков (неправильный ответ)
+                </span>
               )}
             </div>
           </div>
-        )}
-
-        {showExplanation && (
-          <div className="quiz-controls">
-            <button onClick={handleNextQuestion} className="quiz-btn">
-              {isLastQuestion ? 'Finish Quiz' : 'Next Question'}
-            </button>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="quiz-controls">
         <button onClick={onBack} className="quiz-btn secondary">
-          Back to Menu
+          Назад в меню
         </button>
+        
+        {showExplanation && (
+          <button onClick={handleNextQuestion} className="quiz-btn">
+            {isLastQuestion ? "Завершить викторину" : "Следующий вопрос"}
+          </button>
+        )}
       </div>
     </div>
   );

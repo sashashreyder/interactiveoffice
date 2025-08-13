@@ -4,21 +4,22 @@ interface ProgressTrackerProps {
   gameState: {
     level: number;
     experience: number;
-    score: number;
     totalQuestions: number;
     correctAnswers: number;
   };
 }
 
 const ProgressTracker: React.FC<ProgressTrackerProps> = ({ gameState }) => {
-  const experienceToNextLevel = 100;
-  const currentLevelProgress = gameState.experience % experienceToNextLevel;
-  const progressPercentage = (currentLevelProgress / experienceToNextLevel) * 100;
-  const accuracy = gameState.totalQuestions > 0 ? Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100) : 0;
+  const accuracy = gameState.totalQuestions > 0 
+    ? Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100) 
+    : 0;
+  
+  const progressToNextLevel = gameState.experience % 100;
+  const progressPercentage = progressToNextLevel;
 
   return (
     <div className="progress-tracker">
-      <h3>Your Progress</h3>
+      <h3>📊 Ваш Прогресс</h3>
       
       <div className="progress-bar">
         <div 
@@ -30,20 +31,27 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({ gameState }) => {
       <div className="progress-stats">
         <div className="progress-stat">
           <span className="stat-value">{gameState.level}</span>
-          <span className="stat-label">Level</span>
+          <span className="stat-label">Уровень</span>
         </div>
+        
         <div className="progress-stat">
           <span className="stat-value">{gameState.experience}</span>
-          <span className="stat-label">XP</span>
+          <span className="stat-label">Опыт</span>
         </div>
+        
         <div className="progress-stat">
           <span className="stat-value">{accuracy}%</span>
-          <span className="stat-label">Accuracy</span>
+          <span className="stat-label">Точность</span>
         </div>
+        
         <div className="progress-stat">
           <span className="stat-value">{gameState.totalQuestions}</span>
-          <span className="stat-label">Questions</span>
+          <span className="stat-label">Вопросов</span>
         </div>
+      </div>
+      
+      <div className="progress-info">
+        <p>До следующего уровня: {100 - progressToNextLevel} очков опыта</p>
       </div>
     </div>
   );
